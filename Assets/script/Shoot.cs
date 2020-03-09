@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using script.Game;
 using UnityEngine;
 
 public class Shoot : MonoBehaviour {
@@ -36,57 +37,55 @@ public class Shoot : MonoBehaviour {
 		return closest;
 	}
 
-	public int clip ;// # of shots per reload
-	public int usedClip= -1;// # of shots used start at clip
-	public int rof; // # of hit checks per burst
+	public Weapon weapon; // Weapon static data. Should not be changed from here!
+	public int usedClip = -1; // # of shots used start at clip
 	public int shotFired; //# of shots fired in the burst
-	public float spread;//max disdens from target miss can landed
-	public float damage;//how much it hurts
-	public float reload;//time to reload
-	public int accuracy; //chance to hit
 	public int hit; // holds random # for hit check
-	public GameObject target;// set to hold aim target data in the future now holds current shoot aim data. 
+	public GameObject target; // set to hold aim target data in the future now holds current shoot aim data. 
 	public float timeLeft; //time left to reload
 	public Life Life; // script with enemy health and takeDamage function
-	void fire () // function to start shoot and reload.
-	{
-		if (usedClip == -1) 
-		{
-			usedClip = clip;
-		}
-		timeLeft -= Time.deltaTime;
-		if(timeLeft < 0)
-		{
-			timeLeft = reload;
-			shoot ();
 
+	void fire() // function to start shoot and reload.
+	{
+		if (usedClip == -1)
+		{
+			usedClip = weapon.clip;
+		}
+
+		timeLeft -= Time.deltaTime;
+		if (timeLeft < 0)
+		{
+			timeLeft = weapon.reload;
+			shoot();
 		}
 	}
-	void shoot()// fire at target and deal damage
+
+	void shoot() // fire at target and deal damage
 	{
-		
-		target = FindClosestEnemy ();
+		target = FindClosestEnemy();
 		//Life = target.GetComponents<Life>;
-		if (target.tag == "enemies") 
+		if (target != null && target.CompareTag("enemies"))
 		{
-			while (shotFired < rof) //starts a burst
+			while (shotFired < weapon.rof) //starts a burst
 			{
-				hit = Random.Range (0, accuracy);// looks for a hit
-				Debug.Log (hit);
-				if (hit == 1) 
+				hit = Random.Range(0, weapon.accuracy); // looks for a hit
+				Debug.Log(hit);
+				if (hit == 1)
 				{
-					Life other = (Life)target.GetComponent (typeof(Life));//calls other script to do damage
-					other.takeDamage (damage);
+					Life other = (Life) target.GetComponent(typeof(Life)); //calls other script to do damage
+					other.takeDamage(weapon.damage);
 				}
-				shotFired += 1;//moves shotFired towards rof
-				usedClip-=1; // lowers usedClip to 0
+
+				shotFired += 1; //moves shotFired towards rof
+				usedClip -= 1; // lowers usedClip to 0
 				if (usedClip == 0)
 				{
-					usedClip = clip;// reloads usedClip
-					shotFired= rof; //ends loop to start reload animation in the future
+					usedClip = weapon.clip; // reloads usedClip
+					shotFired = weapon.rof; //ends loop to start reload animation in the future
 				}
 			}
-			shotFired = 0;//resets shotFired
+
+			shotFired = 0; //resets shotFired
 		}
 	}
 }
