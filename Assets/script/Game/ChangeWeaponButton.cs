@@ -6,18 +6,17 @@ namespace Game
     public class ChangeWeaponButton : AbstractButton
     {
         public Shoot shoot;
-        public Transform spriteContainer;
+        public Transform container;
         public Weapon weapon;
         
         public override void OnClick()
         {
-            shoot.weapon = weapon;
-            shoot.usedClip = weapon.clip;
-            
-            foreach (Transform child in spriteContainer)
+            foreach (Transform child in container)
                 Destroy(child.gameObject);
-            var g = Instantiate(weapon.sprite, spriteContainer);
-            g.gameObject.SetActive(true);
+            var g = Instantiate(weapon, container);
+            
+            shoot.weapon = g;
+            shoot.usedClip = g.clip;
         }
     }
 }
